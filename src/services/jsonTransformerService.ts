@@ -1,5 +1,13 @@
+export type JsonValue = 
+  | string 
+  | number 
+  | boolean 
+  | null 
+  | JsonValue[] 
+  | { [key: string]: JsonValue };
+
 export interface TransformResult {
-  data: any;
+  data: JsonValue;
   replacementCount: number;
 }
 
@@ -11,14 +19,14 @@ export class JsonTransformerService {
     this.maxReplacements = maxReplacements;
   }
 
-  transform(data: any): TransformResult {
+  transform(data: JsonValue): JsonValue {
     this.replacementCount = 0;
     const transformedData = this.transformRecursive(data);
     
     return transformedData;
   }
 
-  private transformRecursive(data: any): any {
+  private transformRecursive(data: JsonValue): JsonValue {
     // Handle null and undefined
     if (data === null || data === undefined) {
       return data;
@@ -36,7 +44,7 @@ export class JsonTransformerService {
 
     // Handle objects
     if (typeof data === 'object') {
-      const result: any = {};
+      const result: { [key: string]: JsonValue } = {};
       for (const [key, value] of Object.entries(data)) {
         result[key] = this.transformRecursive(value);
       }

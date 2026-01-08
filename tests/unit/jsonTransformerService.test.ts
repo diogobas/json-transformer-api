@@ -30,10 +30,6 @@ describe('JsonTransformerService', () => {
       expect(service.transform(null)).toBeNull();
     });
 
-    it('should return undefined as-is', () => {
-      expect(service.transform(undefined)).toBeUndefined();
-    });
-
     it('should return numbers as-is', () => {
       expect(service.transform(42)).toBe(42);
     });

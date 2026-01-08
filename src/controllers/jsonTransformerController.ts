@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { JsonTransformerService } from '../services/jsonTransformerService';
+import { config } from '../config';
 
 export class JsonTransformerController {
   private transformerService: JsonTransformerService;
 
   constructor() {
-    this.transformerService = new JsonTransformerService(1000);
+    this.transformerService = new JsonTransformerService(config.maxReplacements);
   }
 
   transform = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

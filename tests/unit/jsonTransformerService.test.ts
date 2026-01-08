@@ -129,7 +129,7 @@ describe('JsonTransformerService', () => {
       const input = 'dog dog dog';
       
       expect(() => smallLimitService.transform(input)).toThrow(
-        'Replacement limit exceeded. Max: 2, Attempted: 3'
+        'Replacement limit exceeded. Max: 2'
       );
     });
 

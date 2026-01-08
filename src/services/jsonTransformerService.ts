@@ -49,18 +49,18 @@ export class JsonTransformerService {
 
   private replaceInString(str: string): string {
     const regex = /dog/gi;
-    const matches = str.match(regex);
-    
-    if (matches) {
-      const newCount = this.replacementCount + matches.length;
-      if (newCount > this.maxReplacements) {
+    let result = str;
+    let match;
+
+    while ((match = regex.exec(str)) !== null) {
+      if (this.replacementCount >= this.maxReplacements) {
         throw new Error(
-          `Replacement limit exceeded. Max: ${this.maxReplacements}, Attempted: ${newCount}`
+          `Replacement limit exceeded. Max: ${this.maxReplacements}`
         );
       }
-      this.replacementCount = newCount;
+      this.replacementCount++;
     }
 
-    return str.replace(regex, 'cat');
+    return result.replace(regex, 'cat');
   }
 }

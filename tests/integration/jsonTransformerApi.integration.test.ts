@@ -81,4 +81,43 @@ describe('POST /transform', () => {
       expect(response.body).toEqual([]);
     });
   });
+
+  describe('Error handling', () => {
+    it('should return 400 when data field is missing', async () => {
+      const response = await request(app)
+        .post('/transform')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: 'Request body must contain a "data" field'
+      });
+    });
+
+    it('should return 400 when replacement limit is exceeded', async () => {
+      const manyDogs = Array(1001).fill('dog').join(' ');
+
+      const response = await request(app)
+        .post('/transform')
+        .send({ data: manyDogs })
+        .expect(400);
+
+      expect(response.body.error).toBe('Bad Request');
+      expect(response.body.message).toContain('Replacement limit exceeded');
+    });
+
+    it('should return 400 for invalid JSON', async () => {
+      const response = await request(app)
+        .post('/transform')
+        .set('Content-Type', 'application/json')
+        .send('invalid json')
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: 'Invalid JSON in request body'
+      });
+    });
+  });
 });

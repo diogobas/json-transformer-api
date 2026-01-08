@@ -1,5 +1,24 @@
+export interface TransformResult {
+  data: any;
+  replacementCount: number;
+}
+
 export class JsonTransformerService {
-  transform(data: any): any {
+  private replacementCount: number = 0;
+  private readonly maxReplacements: number;
+
+  constructor(maxReplacements: number) {
+    this.maxReplacements = maxReplacements;
+  }
+
+  transform(data: any): TransformResult {
+    this.replacementCount = 0;
+    const transformedData = this.transformRecursive(data);
+    
+    return transformedData;
+  }
+
+  private transformRecursive(data: any): any {
     // Handle null and undefined
     if (data === null || data === undefined) {
       return data;
@@ -7,24 +26,41 @@ export class JsonTransformerService {
 
     // Handle strings - replace "dog" with "cat"
     if (typeof data === 'string') {
-      return data.replace(/dog/gi, 'cat');
+      return this.replaceInString(data);
     }
 
     // Handle arrays
     if (Array.isArray(data)) {
-      return data.map(item => this.transform(item));
+      return data.map(item => this.transformRecursive(item));
     }
 
     // Handle objects
     if (typeof data === 'object') {
       const result: any = {};
       for (const [key, value] of Object.entries(data)) {
-        result[key] = this.transform(value);
+        result[key] = this.transformRecursive(value);
       }
       return result;
     }
 
     // Handle primitives (numbers, booleans, etc.)
     return data;
+  }
+
+  private replaceInString(str: string): string {
+    const regex = /dog/gi;
+    const matches = str.match(regex);
+    
+    if (matches) {
+      const newCount = this.replacementCount + matches.length;
+      if (newCount > this.maxReplacements) {
+        throw new Error(
+          `Replacement limit exceeded. Max: ${this.maxReplacements}, Attempted: ${newCount}`
+        );
+      }
+      this.replacementCount = newCount;
+    }
+
+    return str.replace(regex, 'cat');
   }
 }

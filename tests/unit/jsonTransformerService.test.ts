@@ -4,59 +4,59 @@ describe('JsonTransformerService', () => {
   let service: JsonTransformerService;
 
   beforeEach(() => {
-    service = new JsonTransformerService();
+    service = new JsonTransformerService(1000);
   });
 
   describe('String transformations', () => {
-    test('should replace "dog" with "cat" in simple string', () => {
+    it('should replace "dog" with "cat" in simple string', () => {
       expect(service.transform('I love my dog')).toBe('I love my cat');
     });
 
-    test('should replace multiple occurrences of "dog"', () => {
+    it('should replace multiple occurrences of "dog"', () => {
       expect(service.transform('dog dog dog')).toBe('cat cat cat');
     });
 
-    test('should be case-insensitive', () => {
+    it('should be case-insensitive', () => {
       expect(service.transform('Dog DOG dog')).toBe('cat cat cat');
     });
 
-    test('should not replace partial matches', () => {
+    it('should not replace partial matches', () => {
       expect(service.transform('hotdog')).toBe('hotcat');
     });
   });
 
   describe('Primitive values', () => {
-    test('should return null as-is', () => {
+    it('should return null as-is', () => {
       expect(service.transform(null)).toBeNull();
     });
 
-    test('should return undefined as-is', () => {
+    it('should return undefined as-is', () => {
       expect(service.transform(undefined)).toBeUndefined();
     });
 
-    test('should return numbers as-is', () => {
+    it('should return numbers as-is', () => {
       expect(service.transform(42)).toBe(42);
     });
 
-    test('should return booleans as-is', () => {
+    it('should return booleans as-is', () => {
       expect(service.transform(true)).toBe(true);
     });
   });
 
   describe('Array transformations', () => {
-    test('should transform strings in array', () => {
+    it('should transform strings in array', () => {
       const input = ['dog', 'cat', 'dog'];
       const expected = ['cat', 'cat', 'cat'];
       expect(service.transform(input)).toEqual(expected);
     });
 
-    test('should handle mixed array types', () => {
+    it('should handle mixed array types', () => {
       const input = ['dog', 42, true, null];
       const expected = ['cat', 42, true, null];
       expect(service.transform(input)).toEqual(expected);
     });
 
-    test('should handle nested arrays', () => {
+    it('should handle nested arrays', () => {
       const input = [['dog'], ['dog', 'dog']];
       const expected = [['cat'], ['cat', 'cat']];
       expect(service.transform(input)).toEqual(expected);
@@ -64,19 +64,19 @@ describe('JsonTransformerService', () => {
   });
 
   describe('Object transformations', () => {
-    test('should transform string values in object', () => {
+    it('should transform string values in object', () => {
       const input = { pet: 'dog', animal: 'dog' };
       const expected = { pet: 'cat', animal: 'cat' };
       expect(service.transform(input)).toEqual(expected);
     });
 
-    test('should handle mixed value types in object', () => {
+    it('should handle mixed value types in object', () => {
       const input = { name: 'dog', age: 5, active: true };
       const expected = { name: 'cat', age: 5, active: true };
       expect(service.transform(input)).toEqual(expected);
     });
 
-    test('should handle nested objects', () => {
+    it('should handle nested objects', () => {
       const input = {
         owner: { name: 'John', pet: 'dog' },
         pets: ['dog', 'bird']
@@ -90,7 +90,7 @@ describe('JsonTransformerService', () => {
   });
 
   describe('Complex nested structures', () => {
-    test('should handle deeply nested JSON', () => {
+    it('should handle deeply nested JSON', () => {
       const input = {
         users: [
           {
@@ -120,6 +120,45 @@ describe('JsonTransformerService', () => {
         ]
       };
       expect(service.transform(input)).toEqual(expected);
+    });
+  });
+
+  describe('Replacement limit enforcement', () => {
+    it('should throw error when limit is exceeded', () => {
+      const smallLimitService = new JsonTransformerService(2);
+      const input = 'dog dog dog';
+      
+      expect(() => smallLimitService.transform(input)).toThrow(
+        'Replacement limit exceeded. Max: 2, Attempted: 3'
+      );
+    });
+
+    it('should allow replacements up to the limit', () => {
+      const smallLimitService = new JsonTransformerService(3);
+      const input = 'dog dog dog';
+      
+      const result = smallLimitService.transform(input);
+      expect(result).toBe('cat cat cat');
+    });
+
+    it('should track replacements across nested structures', () => {
+      const smallLimitService = new JsonTransformerService(5);
+      const input = {
+        pets: ['dog', 'dog'],
+        description: 'I have a dog and another dog'
+      };
+      
+      expect(() => smallLimitService.transform(input)).not.toThrow(
+        'Replacement limit exceeded'
+      );
+    });
+
+    it('should reset count between transform calls', () => {
+      const result1 = service.transform('dog');
+      const result2 = service.transform('dog');
+      
+      expect(result1).toBe("cat");
+      expect(result2).toBe("cat");
     });
   });
 });

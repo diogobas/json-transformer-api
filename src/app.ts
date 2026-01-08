@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import { TransformController } from './controllers/transformController';
+import { JsonTransformerController } from './controllers/jsonTransformerController';
 
 export function createApp(): Application {
   const app = express();
@@ -8,7 +8,7 @@ export function createApp(): Application {
   app.use(express.json());
 
   // Routes
-  const transformController = new TransformController();
+  const transformController = new JsonTransformerController();
   app.post('/transform', transformController.transform);
 
   return app;

@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { TransformController } from '../../src/controllers/transformController';
+import { JsonTransformerController } from '../../src/controllers/jsonTransformerController';
 
-describe('TransformController', () => {
-  let controller: TransformController;
+describe('JsonTransformerController', () => {
+  let controller: JsonTransformerController;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
 
   beforeEach(() => {
-    controller = new TransformController();
+    controller = new JsonTransformerController();
     mockRequest = {
       body: {}
     };

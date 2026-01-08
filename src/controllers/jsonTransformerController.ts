@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { JsonTransformerService } from '../services/jsonTransformerService';
 
-export class TransformController {
+export class JsonTransformerController {
   private transformerService: JsonTransformerService;
 
   constructor() {
